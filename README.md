@@ -2,6 +2,10 @@
 
 DSH 界面两档模式插件：简化 / 原生一键切换，工具卡片白话化，降低 DeepSeek Harness 的上手门槛。
 
+> ⚠️ **项目状态：已停止维护（半途而废）**
+>
+> 这是一个练手项目：插件功能开发完成、本地验证可用，但没继续推下去（未发布 npm、未跟进官方接口更新）。代码保留供参考，不保证在新版本 DSH 上可用，也不会再更新。
+
 ## 为什么做这个
 
 DeepSeek Harness 发布后，社区对它的批评集中在一点：**门槛**。
@@ -35,11 +39,13 @@ DSH 的毛坯房是刻意为之，但「想省事的人」和「要全功能的�
 
 ## 安装
 
-需要先装好 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（Node.js 22.19+ 或 24+）：
+需要先装好 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（Node.js 22.19+ 或 24+）。
 
-```sh
-npx -y @deepseek-ai/dsh plugin --profile web add dsh-ux-simple
-```
+> ⚠️ 未发布到 npm，无法用一行命令安装。请克隆本仓库后用本地路径安装：
+>
+> ```sh
+> npx -y @deepseek-ai/dsh plugin --profile web add <本仓库目录>
+> ```
 
 然后正常启动 Web UI 即可，左下角会出现「界面」入口。
 
@@ -73,7 +79,7 @@ copy /Y lib\* %USERPROFILE%\.dsh\profiles\node_modules\dsh-ux-simple\lib\
 
 ## 兼容性
 
-基于 `@deepseek-ai/dsh 0.1.0-rc.6` 开发。DSH 处于开发者预览期，接口可能变动，新版本如有不适配请提 issue。
+基于 `@deepseek-ai/dsh 0.1.0-rc.6` 开发。项目已停止维护，DSH 预览期的接口变动后大概率不兼容，请勿用于生产环境。
 
 ## License
 
