@@ -1,6 +1,12 @@
 # dsh-ux-simple
 
+[![Release](https://img.shields.io/github/v/release/KhalilYamber/dsh-ux-simple?label=Release&color=2da44e)](https://github.com/KhalilYamber/dsh-ux-simple/releases)
+[![License](https://img.shields.io/github/license/KhalilYamber/dsh-ux-simple?label=License)](LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/KhalilYamber/dsh-ux-simple?label=最近更新)](https://github.com/KhalilYamber/dsh-ux-simple/commits/main)
+
 DSH 界面两档模式插件：简化 / 原生一键切换，工具卡片白话化，降低 DeepSeek Harness 的上手门槛。新手看白话，老手要完整，同一套界面两种读法。
+
+项目仍在持续迭代：跟进 DSH 接口演进、扩充工具覆盖、打磨简化档体验，欢迎试用与反馈。
 
 ## 为什么做这个
 
@@ -45,13 +51,13 @@ DSH 的毛坯房是刻意为之，但「想省事的人」和「要全功能的�
 
 需要先装好 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（Node.js 22.19+ 或 24+）。
 
-> 未发布到 npm，请克隆本仓库后用本地路径安装：
+当前通过 GitHub 发布，克隆本仓库后以本地路径安装：
 
 ```sh
 npx -y @deepseek-ai/dsh plugin --profile web add <本仓库目录>
 ```
 
-然后正常启动 Web UI 即可，左下角会出现悬浮入口。
+也可以直接从 [Releases](https://github.com/KhalilYamber/dsh-ux-simple/releases) 下载打包产物。启动 Web UI 后，左下角会出现悬浮入口。
 
 ## 使用
 
@@ -74,6 +80,36 @@ npx -y @deepseek-ai/dsh plugin --profile web add <本仓库目录>
 
 **点开详情后表格 / 代码块是什么效果？**
 结果文本先脱敏，再按 Markdown 子集渲染：`| a | b |` 表格、``` 代码块、`#` 标题、`-` 列表、`**粗体**`、行内代码与 commit 哈希高亮；任何解析失败都退化为纯文本。
+
+## Roadmap
+
+- 跟进 DSH 官方接口演进，保持新版本兼容
+- 扩充工具规则表，让更多工具自动获得白话文案与文档化呈现
+- 打磨简化档体验：时间线行、交付文档渲染、脱敏粒度
+- 按社区反馈补充适配说明与常见问题
+
+有想法或遇到不适配的工具，欢迎开 issue 讨论。
+
+## 更新日志
+
+### v1.0.0（2026-08-18）
+
+- 架构：规则表 + 参数名规则驱动（33 工具白话文案、注册名单自动推导），新增工具只需加一行
+- 原生档零注册：产品原貌完整回归，切换即时生效
+- 简化档：时间线行（类别图标 + 白话动作 + 状态图标）+ 交付文档详情（Markdown 子集渲染：表格 / 代码块 / 标题 / commit 高亮）
+- 新增「隐藏复杂工具」开关（默认开启）：17 个高级工具折叠成一行
+- 数据脱敏加严：敏感参数名永不展示、密钥形态替换、详情先脱敏后渲染
+- 悬浮入口动态定位，跟随侧栏与输入框，不遮挡输入
+
+### 早期版本
+
+- 初版：简化 / 原生两档切换，33 工具白话文案，接管 19 个无原生卡片的工具
+
+## 贡献
+
+- 发现工具适配问题：开 issue，附上工具名与界面截图即可
+- 想补充白话文案或新工具规则：按「新增一个工具」一节改 `TOOL_RULES`，提 PR
+- 代码风格：与 `lib/client.js` 保持一致（零依赖、`React.createElement`、中文注释）
 
 ## 架构（全部实现位于 `lib/client.js`）
 
