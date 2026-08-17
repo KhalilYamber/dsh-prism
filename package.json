@@ -9,6 +9,7 @@
     "cordis.patch.yml"
   ],
   "license": "MIT",
+  "private": true,
   "dsh": {
     "client": {
       "inject": [
@@ -21,7 +22,9 @@
     }
   },
   "exports": {
-    "./client": "./lib/client.js"
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
   },
   "peerDependencies": {
     "react": "^18.2.0",
