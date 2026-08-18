@@ -163,7 +163,7 @@ Registration is dynamic: the `tool-call` renderer for `conversation.chat.node` r
 
 - `cordis.patch.yml`: bundle patch injection (`insert prism`).
 - `package.json`: `dsh.client.inject: ["@deepseek-ai/dsh-client-runtime"]`; the browser half loads through `exports["./client"]`.
-- Assembled into the web profile via the shared layer `~/.dsh/profiles/node_modules/dsh-prism`; after editing `lib/client.js`, sync that copy and refresh the page for changes to take effect.
+- Assembled into the web profile through a `node_modules/dsh-prism` junction pointing straight at the working tree; after editing `lib/client.js`, a page refresh picks it up (no copy to sync).
 
 ## License
 

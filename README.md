@@ -163,7 +163,7 @@ SENSITIVE_KEY     敏感参数名（任何情况下不展示其值）
 
 - `cordis.patch.yml`：bundle patch 注入（`insert prism`）。
 - `package.json`：`dsh.client.inject: ["@deepseek-ai/dsh-client-runtime"]`，浏览器半体经 `exports["./client"]` 加载。
-- 经共享层 `~/.dsh/profiles/node_modules/dsh-prism` 装配进 web profile；修改 `lib/client.js` 后需同步该副本并刷新页面生效。
+- 经 web profile 的 `node_modules/dsh-prism` junction 直接指向工作树装配；修改 `lib/client.js` 后刷新页面即生效（无需同步副本）。
 
 ## License
 
