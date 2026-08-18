@@ -35,7 +35,7 @@ Native is the default. Switching takes effect immediately; refreshing the page r
   - Detail view: click the stats line to open a documented panel — header ("This call: N tools · M thoughts") + list (one row per tool: category icon + plain-language action / argument summary + status icon) + note; each row reuses the plain-card style; click a row to open that tool's "delivery document" detail (redacted result rendered as Markdown)
   - Hide complex tools: 21 advanced tools (goals / plans, subagent orchestration, background jobs, plugin system) collapse into plain summary rows by default; click "展开" (expand) to reveal and open the detail; the menu toggle turns the folding off at any time
   - Grouping rule: all tool calls within one user turn before the final reply (the last assistant message containing text) form one group; a running turn keeps accumulating new calls; replay after refresh regroups by the same rule; every tool appears exactly once
-- **Data redaction (Simple mode)**:
+- **Bilingual UI**: every string follows the DSH interface language (Simplified Chinese / English); switching language in Settings takes effect instantly without a refresh — tool copy, argument summaries, menus, and group status all ship in both languages\n- **Data redaction (Simple mode)**:
   - Paths show only the file name (`file_path` and similar arguments render as basename)
   - Sensitive argument names such as `token / secret / password / api_key / authorization` are never shown
   - Common secret shapes in result text (`sk-xxx`, `Bearer xxx`, `key=xxx`) are replaced with placeholders
@@ -94,6 +94,10 @@ Result text is redacted first, then rendered as a Markdown subset: `| a | b |` t
 Ideas or tools that don't fit well? Open an issue and discuss.
 
 ## Changelog
+
+### v1.2.0 (2026-08-18)
+
+- Bilingual UI: every string follows the DSH interface language (zh/en), switching takes effect instantly; all 33 tool rules, argument summaries, menus, and group status ship in English
 
 ### v1.1.1 (2026-08-18)
 
