@@ -4,6 +4,8 @@
 [![License](https://img.shields.io/github/license/KhalilYamber/dsh-ux-simple?label=License)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/KhalilYamber/dsh-ux-simple?label=最近更新)](https://github.com/KhalilYamber/dsh-ux-simple/commits/main)
 
+**简体中文** | [English](./README.en.md)
+
 DSH 界面两档模式插件：简化 / 原生一键切换，工具卡片白话化，降低 DeepSeek Harness 的上手门槛。新手看白话，老手要完整，同一套界面两种读法。
 
 项目仍在持续迭代：跟进 DSH 接口演进、扩充工具覆盖、打磨简化档体验，欢迎试用与反馈。
