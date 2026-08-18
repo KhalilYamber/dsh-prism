@@ -1,8 +1,8 @@
-# dsh-ux-simple
+# dsh-prism
 
-[![Release](https://img.shields.io/github/v/release/KhalilYamber/dsh-ux-simple?label=Release&color=2da44e)](https://github.com/KhalilYamber/dsh-ux-simple/releases)
-[![License](https://img.shields.io/github/license/KhalilYamber/dsh-ux-simple?label=License)](LICENSE)
-[![Last commit](https://img.shields.io/github/last-commit/KhalilYamber/dsh-ux-simple?label=最近更新)](https://github.com/KhalilYamber/dsh-ux-simple/commits/main)
+[![Release](https://img.shields.io/github/v/release/KhalilYamber/dsh-prism?label=Release&color=2da44e)](https://github.com/KhalilYamber/dsh-prism/releases)
+[![License](https://img.shields.io/github/license/KhalilYamber/dsh-prism?label=License)](LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/KhalilYamber/dsh-prism?label=最近更新)](https://github.com/KhalilYamber/dsh-prism/commits/main)
 
 **简体中文** | [English](./README.en.md)
 
@@ -18,7 +18,7 @@ DeepSeek Harness 发布后，社区对它的批评集中在一点：**门槛**�
 - 极客公园：DSH「对非编程用户不是很友好」，像框架、不像成品，是给开发者的尝鲜版
 - 社区开发者：「这玩意鬼才用，我为什么没事要插拔」
 
-DSH 的毛坯房是刻意为之，但「想省事的人」和「要全功能的人」不该被迫接受同一套界面。dsh-ux-simple 用两档模式回应这个矛盾：
+DSH 的毛坯房是刻意为之，但「想省事的人」和「要全功能的人」不该被迫接受同一套界面。dsh-prism 用两档模式回应这个矛盾：
 
 | 档位 | 适用的人 | 界面表现 |
 |---|---|---|
@@ -60,7 +60,7 @@ DSH 的毛坯房是刻意为之，但「想省事的人」和「要全功能的�
 npx -y @deepseek-ai/dsh plugin --profile web add <本仓库目录>
 ```
 
-也可以直接从 [Releases](https://github.com/KhalilYamber/dsh-ux-simple/releases) 下载打包产物。启动 Web UI 后，左下角会出现悬浮入口。
+也可以直接从 [Releases](https://github.com/KhalilYamber/dsh-prism/releases) 下载打包产物。启动 Web UI 后，左下角会出现悬浮入口。
 
 ## 使用
 
@@ -161,9 +161,9 @@ SENSITIVE_KEY     敏感参数名（任何情况下不展示其值）
 
 ## 装配
 
-- `cordis.patch.yml`：bundle patch 注入（`insert ux-simple`）。
+- `cordis.patch.yml`：bundle patch 注入（`insert prism`）。
 - `package.json`：`dsh.client.inject: ["@deepseek-ai/dsh-client-runtime"]`，浏览器半体经 `exports["./client"]` 加载。
-- 经共享层 `~/.dsh/profiles/node_modules/dsh-ux-simple` 装配进 web profile；修改 `lib/client.js` 后需同步该副本并刷新页面生效。
+- 经共享层 `~/.dsh/profiles/node_modules/dsh-prism` 装配进 web profile；修改 `lib/client.js` 后需同步该副本并刷新页面生效。
 
 ## License
 

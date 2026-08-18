@@ -1,5 +1,5 @@
 {
-  "name": "dsh-ux-simple",
+  "name": "dsh-prism",
   "version": "1.1.1",
   "description": "DSH 界面两档模式（简化/原生）：工具卡片白话化，降低新手门槛 / Two-level UI mode (simple/native) with plain-language tool cards for DeepSeek Harness",
   "type": "module",

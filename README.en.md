@@ -1,8 +1,8 @@
-# dsh-ux-simple
+# dsh-prism
 
-[![Release](https://img.shields.io/github/v/release/KhalilYamber/dsh-ux-simple?label=Release&color=2da44e)](https://github.com/KhalilYamber/dsh-ux-simple/releases)
-[![License](https://img.shields.io/github/license/KhalilYamber/dsh-ux-simple?label=License)](LICENSE)
-[![Last commit](https://img.shields.io/github/last-commit/KhalilYamber/dsh-ux-simple?label=Last%20commit)](https://github.com/KhalilYamber/dsh-ux-simple/commits/main)
+[![Release](https://img.shields.io/github/v/release/KhalilYamber/dsh-prism?label=Release&color=2da44e)](https://github.com/KhalilYamber/dsh-prism/releases)
+[![License](https://img.shields.io/github/license/KhalilYamber/dsh-prism?label=License)](LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/KhalilYamber/dsh-prism?label=Last%20commit)](https://github.com/KhalilYamber/dsh-prism/commits/main)
 
 [简体中文](./README.md) | **English**
 
@@ -18,7 +18,7 @@ After the DeepSeek Harness release, community criticism converged on one point: 
 - 极客公园: DSH is "not friendly to non-programmers", more like a framework than a finished product — a developer's preview
 - Community developers: "Who would actually use this? Why would I plug and unplug things for no reason?"
 
-DSH's bare-bones design is deliberate. But people who want a quick start and people who want the full feature set should not be forced into the same UI. dsh-ux-simple answers that tension with two modes:
+DSH's bare-bones design is deliberate. But people who want a quick start and people who want the full feature set should not be forced into the same UI. dsh-prism answers that tension with two modes:
 
 | Mode | For whom | What the UI looks like |
 |---|---|---|
@@ -60,7 +60,7 @@ The plugin is distributed through GitHub; clone this repository and install it b
 npx -y @deepseek-ai/dsh plugin --profile web add <path-to-this-repo>
 ```
 
-You can also grab the packaged artifact from [Releases](https://github.com/KhalilYamber/dsh-ux-simple/releases). After the Web UI starts, the floating entry appears at the bottom-left.
+You can also grab the packaged artifact from [Releases](https://github.com/KhalilYamber/dsh-prism/releases). After the Web UI starts, the floating entry appears at the bottom-left.
 
 ## Usage
 
@@ -161,9 +161,9 @@ Registration is dynamic: the `tool-call` renderer for `conversation.chat.node` r
 
 ## Assembly
 
-- `cordis.patch.yml`: bundle patch injection (`insert ux-simple`).
+- `cordis.patch.yml`: bundle patch injection (`insert prism`).
 - `package.json`: `dsh.client.inject: ["@deepseek-ai/dsh-client-runtime"]`; the browser half loads through `exports["./client"]`.
-- Assembled into the web profile via the shared layer `~/.dsh/profiles/node_modules/dsh-ux-simple`; after editing `lib/client.js`, sync that copy and refresh the page for changes to take effect.
+- Assembled into the web profile via the shared layer `~/.dsh/profiles/node_modules/dsh-prism`; after editing `lib/client.js`, sync that copy and refresh the page for changes to take effect.
 
 ## License
 
