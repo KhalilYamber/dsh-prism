@@ -37,16 +37,16 @@ Native is the default. Switching takes effect immediately; refreshing the page r
   - Complex tools are not folded (information parity with Native); redaction and detail rendering keep the same floor
 - **Plain mode = collapsed tool groups × delivery documents**:
   - Summary view: every tool call in a user turn, up to the model's final reply, folds into one group; collapsed it shows a single stats line, "N tools · M thoughts" (M counts the model's reasoning blocks from assistant output; when there are no thoughts only the tool count shows), with a group status at the end (✓ done / ● running / ✕ had errors)
-  - Detail view: click the stats line to open a documented panel — header ("This call: N tools · M thoughts") + list (one row per tool: category icon + plain-language action / argument summary + status icon) + note; each row reuses the plain-card style; click a row to open that tool's "delivery document" detail (redacted result rendered as Markdown)
+  - Detail view: click the stats line to open a documented panel — header ("This call: N tools · M thoughts") + list (one row per tool) + note; in the Plain tier a row is category icon + plain-language action / argument summary + status icon, in the Tidy tier an official icon + category title + argument summary; click a row to open that tool's "delivery document" detail (redacted result rendered as Markdown)
   - Hide complex tools: 21 advanced tools (goals / plans, subagent orchestration, background jobs, plugin system) collapse into plain summary rows by default; click "展开" (expand) to reveal and open the detail; the menu toggle turns the folding off at any time
   - Grouping rule: all tool calls within one user turn before the final reply (the last assistant message containing text) form one group; a running turn keeps accumulating new calls; replay after refresh regroups by the same rule; every tool appears exactly once
-- **Bilingual UI**: every string follows the DSH interface language (Simplified Chinese / English); switching language in Settings takes effect instantly without a refresh — tool copy, argument summaries, menus, and group status all ship in both languages\n- **Data redaction (Plain mode)**:
-  - Paths show only the file name (`file_path` and similar arguments render as basename)
-  - Sensitive argument names such as `token / secret / password / api_key / authorization` are never shown
-  - Common secret shapes in result text (`sk-xxx`, `Bearer xxx`, `key=xxx`) are replaced with placeholders
-  - The detail panel shows only the plain-language summary and redacted result — raw arguments never surface
-- **Native mode = product as shipped**: in Native mode the plugin registers no tool cards at all and hands rendering back to the product (including generic cards); the collapsed-group node registers only in Plain mode (shadowing the product's tool-call tree with a lower `priority`), and mode switches register / unregister dynamically and take effect instantly
-- **Plain-language coverage**: 33 tools covered by the rule table (e.g. `pwsh` → "running a command on the computer"); 19 tools without native product cards have been taken over by plugin cards since v1.0.0; since v1.1.0 Plain mode folds the whole tool chain into groups, where every tool row (including `read` / `write` / `web_search` that have official native cards) renders by the same plain-language rules — while in Native mode they stay the product's original cards
+- **Bilingual UI**: every string follows the DSH interface language (Simplified Chinese / English); switching language in Settings takes effect instantly without a refresh — tool copy, argument summaries, menus, and group status all ship in both languages\n- **Data redaction** (one shared floor for both collapsed tiers):
+  - Sensitive argument names such as `token / secret / password / api_key / authorization` are never read — the Tidy tier filters them too; when a payload holds only sensitive keys the summary stays empty instead of falling back to raw JSON
+  - Common secret shapes in result text and summaries (`sk-xxx`, `Bearer xxx`, `?token=xxx`, `key=xxx`) are replaced with placeholders
+  - The Plain tier additionally reduces paths to the file name (`file_path` and similar render as basename); the Tidy tier shows paths by the product rules, to stay close to the shipped rows
+  - The detail panel shows only the redacted result — raw arguments never surface
+- **Native tier = product as shipped**: in Native mode the plugin registers no tool-row renderer at all and hands rendering back to the product (including generic cards); the collapsed-group node registers only in Tidy and Plain (shadowing the product's tool-call tree with a lower `priority`), and tier switches register / unregister dynamically and take effect instantly
+- **Copy rules**: the 33-tool rule table supplies plain-language copy (e.g. `pwsh` → "running a command on the computer"); tools outside the table get an argument-name-derived summary. In the Plain tier every row inside a group renders by these rules; the Tidy tier uses the product's own category titles and summary rules (`Bash · …`, `Tool call · name · …`) and keeps the plugin filter only on the redaction floor
 
 ## Design principles
 
@@ -99,6 +99,14 @@ Result text is redacted first, then rendered as a Markdown subset: `| a | b |` t
 Ideas or tools that don't fit well? Open an issue and discuss.
 
 ## Changelog
+
+### v1.3.2 (2026-09-17)
+
+Closing review pass (only changes that affect future work):
+
+- Fix: a group's expanded state was keyed by turn number alone, so two sessions sharing the same turn number bled into each other (a group expanded in session A also opened in session B). It is now keyed by session + turn — isolated across sessions, remembered within one
+- Cleanup: `dsh.client.inject` carried a package name the host does not have (`@deepseek-ai/dsh-client-runtime`); it is now empty, and the official `ui-primitives` dependency is declared in `peerDependencies`
+- Docs: the wiring note and the redaction section caught up with the three tiers (Plain reduces paths to the file name, Tidy shows them as the product does; both share one sensitive-key filter)
 
 ### v1.3.1 (2026-09-17)
 
@@ -191,7 +199,7 @@ Registration is dynamic: the `tool-call` renderer for `conversation.chat.node` r
 ## Assembly
 
 - `cordis.patch.yml`: bundle patch injection (`insert prism`).
-- `package.json`: `dsh.client.inject: ["@deepseek-ai/dsh-client-runtime"]`; the browser half loads through `exports["./client"]`.
+- `package.json`: `dsh.client.external: ["@deepseek-ai/dsh-client-ui-primitives"]` (a platform singleton in the host module table, so a runtime `require` is all it takes — no install, no bundling); the browser half loads through `exports["./client"]`.
 - Assembled into the web profile through a `node_modules/dsh-prism` junction pointing straight at the working tree; after editing `lib/client.js`, a page refresh picks it up (no copy to sync).
 
 ## License
