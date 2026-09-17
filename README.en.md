@@ -6,7 +6,7 @@
 
 [简体中文](./README.md) | **English**
 
-A two-mode UI plugin for the DeepSeek Harness web interface: toggle between **Simple** and **Native** modes with one click. Tool cards are rewritten in plain language to lower the learning curve for newcomers. Beginners get plain-speak, power users get the full product — the same interface, read two ways.
+A three-tier UI plugin for the DeepSeek Harness web interface: toggle between **Native**, **Medium**, and **Simple** with one click. Medium keeps the product's own tool-row language, Simple rewrites it as plain speech, and both group tool calls into collapsed summaries. Beginners get plain-speak, power users get the full product — the same interface, read three ways.
 
 The project is under active iteration: tracking DSH interface evolution, expanding tool coverage, and polishing the Simple mode experience. Feedback and trial use are welcome.
 
@@ -18,18 +18,23 @@ After the DeepSeek Harness release, community criticism converged on one point: 
 - 极客公园: DSH is "not friendly to non-programmers", more like a framework than a finished product — a developer's preview
 - Community developers: "Who would actually use this? Why would I plug and unplug things for no reason?"
 
-DSH's bare-bones design is deliberate. But people who want a quick start and people who want the full feature set should not be forced into the same UI. dsh-prism answers that tension with two modes:
+DSH's bare-bones design is deliberate. But people who want a quick start and people who want the full feature set should not be forced into the same UI. dsh-prism answers that tension with three tiers:
 
 | Mode | For whom | What the UI looks like |
 |---|---|---|
-| **Simple** | People who want to get going without learning the jargon | Tool calls are grouped and collapsed: the chain of calls before the final reply folds into a one-line summary; click to open a panel with a plain-language row per tool |
+| **Simple** | People who want to get going without learning the jargon | Tool calls are grouped and collapsed: the chain of calls before the final reply folds into a one-line summary; expanded, every row speaks plain language ("Reading a file") with emoji icons |
+| **Medium** | People who want a tidier flow without changing how they read the product | Same grouping and collapsing; expanded, every row uses the **product's own row language**: monochrome icon + category title (`Bash` / `Read` / `Edit` / `Tool call`) + "·" + argument summary, e.g. `Bash · Run syntax check`, `Tool call · get_goal · {}` — rendered with the host's built-in official `ui-primitives` components |
 | **Native** | Power users who need complete information | Zero plugin takeover — the product renders exactly as shipped, pixel for pixel |
 
 Native is the default. Switching takes effect immediately; refreshing the page returns to Native. Don't want it? Remove the plugin and the UI is back to factory state with nothing left behind.
 
 ## Features
 
-- **Floating entry, bottom-left**: shows the current mode; click to open the menu and switch between Simple / Native; the menu also carries a "Hide complex tools" toggle
+- **Floating entry, bottom-left**: shows the current tier; click to open the menu and switch between Native / Medium / Simple; the menu also carries a "Hide complex tools" toggle (Simple tier only)
+- **Medium tier = collapsed groups × native rows**:
+  - Shares grouping and the collapsed summary line with Simple; only the expanded rows differ: they render through the host's built-in official `@deepseek-ai/dsh-client-ui-primitives` (`DisclosureRow`, `StateDot`, official icon components), with titles and summaries derived by the product's own `toolRowModel` rules — visually the same as a shipped tool row
+  - Row anatomy: state marker (running / error / interrupted via `StateDot`) + monochrome icon + category title + "·" + argument summary; generic tools carry the tool name the way the product does (`Tool call · get_goal · {}`)
+  - Complex tools are not folded (information parity with Native); redaction and detail rendering keep the same floor
 - **Simple mode = collapsed tool groups × delivery documents**:
   - Summary view: every tool call in a user turn, up to the model's final reply, folds into one group; collapsed it shows a single stats line, "N tools · M thoughts" (M counts the model's reasoning blocks from assistant output; when there are no thoughts only the tool count shows), with a group status at the end (✓ done / ● running / ✕ had errors)
   - Detail view: click the stats line to open a documented panel — header ("This call: N tools · M thoughts") + list (one row per tool: category icon + plain-language action / argument summary + status icon) + note; each row reuses the plain-card style; click a row to open that tool's "delivery document" detail (redacted result rendered as Markdown)
@@ -94,6 +99,12 @@ Result text is redacted first, then rendered as a Markdown subset: `| a | b |` t
 Ideas or tools that don't fit well? Open an issue and discuss.
 
 ## Changelog
+
+### v1.3.0 (2026-09-17)
+
+- New **Medium** tier (the plugin is now Native / Medium / Simple). Medium shares grouping and collapsing with Simple; the difference is in the expanded rows: they render through the host's built-in official `ui-primitives` primitives (`DisclosureRow`, `StateDot`, official icon components) with titles and summaries derived by the product's `toolRowModel` rules, so the row language matches a shipped tool row (`Bash · Run syntax check`, `Tool call · get_goal · {}`)
+- The official package is reached through the host's platform-singleton module table (`seed.ts` already registers `@deepseek-ai/dsh-client-ui-primitives`): a plain `require`, **no bundling, no install, no dependencies**. If it is unavailable, the tier degrades to a plain layout instead of breaking
+- Expanded-row metrics are copied from the product's `ToolRow.module.css` (title weight, 2px dot separator, summary size and ellipsis) and ride the `--dsw-alias-*` theme tokens, so light and dark themes follow automatically
 
 ### v1.2.1 (2026-09-17)
 

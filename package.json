@@ -1,7 +1,7 @@
 {
   "name": "dsh-prism",
-  "version": "1.2.1",
-  "description": "DSH 界面两档模式（简化/原生）：工具卡片白话化，降低新手门槛 / Two-level UI mode (simple/native) with plain-language tool cards for DeepSeek Harness",
+  "version": "1.3.0",
+  "description": "DSH 界面三档模式（原生/中级/简化）：中级走产品原版行语言，简化走白话文案，工具调用归组折叠 / Three-tier UI mode (native/medium/simple) for DeepSeek Harness: the product's own row language or plain speech, with grouped tool calls",
   "type": "module",
   "main": "lib/index.js",
   "files": [
@@ -14,6 +14,9 @@
     "client": {
       "inject": [
         "@deepseek-ai/dsh-client-runtime"
+      ],
+      "external": [
+        "@deepseek-ai/dsh-client-ui-primitives"
       ],
       "platform": "web"
     },
