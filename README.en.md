@@ -6,9 +6,9 @@
 
 [简体中文](./README.md) | **English**
 
-A three-tier UI plugin for the DeepSeek Harness web interface: toggle between **Native**, **Medium**, and **Simple** with one click. Medium keeps the product's own tool-row language, Simple rewrites it as plain speech, and both group tool calls into collapsed summaries. Beginners get plain-speak, power users get the full product — the same interface, read three ways.
+A three-tier UI plugin for the DeepSeek Harness web interface: toggle between **Native**, **Tidy**, and **Plain** with one click. Tidy keeps the product's own tool-row language, Plain rewrites it as plain speech, and both group tool calls into collapsed summaries. Beginners get plain-speak, power users get the full product — the same interface, read three ways.
 
-The project is under active iteration: tracking DSH interface evolution, expanding tool coverage, and polishing the Simple mode experience. Feedback and trial use are welcome.
+The project is under active iteration: tracking DSH interface evolution, expanding tool coverage, and polishing the Plain tier experience. Feedback and trial use are welcome.
 
 ## Why this exists
 
@@ -22,36 +22,36 @@ DSH's bare-bones design is deliberate. But people who want a quick start and peo
 
 | Mode | For whom | What the UI looks like |
 |---|---|---|
-| **Simple** | People who want to get going without learning the jargon | Tool calls are grouped and collapsed: the chain of calls before the final reply folds into a one-line summary; expanded, every row speaks plain language ("Reading a file") with emoji icons |
-| **Medium** | People who want a tidier flow without changing how they read the product | Same grouping and collapsing; expanded, every row uses the **product's own row language**: monochrome icon + category title (`Bash` / `Read` / `Edit` / `Tool call`) + "·" + argument summary, e.g. `Bash · Run syntax check`, `Tool call · get_goal · {}` — rendered with the host's built-in official `ui-primitives` components |
+| **Plain** | People who want to get going without learning the jargon | Tool calls are grouped and collapsed: the chain of calls before the final reply folds into a one-line summary; expanded, every row speaks plain language ("Reading a file") with emoji icons |
+| **Tidy** | People who want a tidier flow without changing how they read the product | Same grouping and collapsing; expanded, every row uses the **product's own row language**: monochrome icon + category title (`Bash` / `Read` / `Edit` / `Tool call`) + "·" + argument summary, e.g. `Bash · Run syntax check`, `Tool call · get_goal · {}` — rendered with the host's built-in official `ui-primitives` components |
 | **Native** | Power users who need complete information | Zero plugin takeover — the product renders exactly as shipped, pixel for pixel |
 
 Native is the default. Switching takes effect immediately; refreshing the page returns to Native. Don't want it? Remove the plugin and the UI is back to factory state with nothing left behind.
 
 ## Features
 
-- **Floating entry, bottom-left**: shows the current tier; click to open the menu and switch between Native / Medium / Simple; the menu also carries a "Hide complex tools" toggle (Simple tier only)
-- **Medium tier = collapsed groups × native rows**:
-  - Shares grouping and the collapsed summary line with Simple; only the expanded rows differ: they render through the host's built-in official `@deepseek-ai/dsh-client-ui-primitives` (`DisclosureRow`, `StateDot`, official icon components), with titles and summaries derived by the product's own `toolRowModel` rules — visually the same as a shipped tool row
+- **Floating entry, bottom-left**: shows the current tier; click to open the menu and switch between Native / Tidy / Plain; the menu also carries a "Hide complex tools" toggle (Plain tier only)
+- **Tidy tier = collapsed groups × native rows**:
+  - Shares grouping and the collapsed summary line with Plain; only the expanded rows differ: they render through the host's built-in official `@deepseek-ai/dsh-client-ui-primitives` (`DisclosureRow`, `StateDot`, official icon components), with titles and summaries derived by the product's own `toolRowModel` rules — visually the same as a shipped tool row
   - Row anatomy: state marker (running / error / interrupted via `StateDot`) + monochrome icon + category title + "·" + argument summary; generic tools carry the tool name the way the product does (`Tool call · get_goal · {}`)
   - Complex tools are not folded (information parity with Native); redaction and detail rendering keep the same floor
-- **Simple mode = collapsed tool groups × delivery documents**:
+- **Plain mode = collapsed tool groups × delivery documents**:
   - Summary view: every tool call in a user turn, up to the model's final reply, folds into one group; collapsed it shows a single stats line, "N tools · M thoughts" (M counts the model's reasoning blocks from assistant output; when there are no thoughts only the tool count shows), with a group status at the end (✓ done / ● running / ✕ had errors)
   - Detail view: click the stats line to open a documented panel — header ("This call: N tools · M thoughts") + list (one row per tool: category icon + plain-language action / argument summary + status icon) + note; each row reuses the plain-card style; click a row to open that tool's "delivery document" detail (redacted result rendered as Markdown)
   - Hide complex tools: 21 advanced tools (goals / plans, subagent orchestration, background jobs, plugin system) collapse into plain summary rows by default; click "展开" (expand) to reveal and open the detail; the menu toggle turns the folding off at any time
   - Grouping rule: all tool calls within one user turn before the final reply (the last assistant message containing text) form one group; a running turn keeps accumulating new calls; replay after refresh regroups by the same rule; every tool appears exactly once
-- **Bilingual UI**: every string follows the DSH interface language (Simplified Chinese / English); switching language in Settings takes effect instantly without a refresh — tool copy, argument summaries, menus, and group status all ship in both languages\n- **Data redaction (Simple mode)**:
+- **Bilingual UI**: every string follows the DSH interface language (Simplified Chinese / English); switching language in Settings takes effect instantly without a refresh — tool copy, argument summaries, menus, and group status all ship in both languages\n- **Data redaction (Plain mode)**:
   - Paths show only the file name (`file_path` and similar arguments render as basename)
   - Sensitive argument names such as `token / secret / password / api_key / authorization` are never shown
   - Common secret shapes in result text (`sk-xxx`, `Bearer xxx`, `key=xxx`) are replaced with placeholders
   - The detail panel shows only the plain-language summary and redacted result — raw arguments never surface
-- **Native mode = product as shipped**: in Native mode the plugin registers no tool cards at all and hands rendering back to the product (including generic cards); the collapsed-group node registers only in Simple mode (shadowing the product's tool-call tree with a lower `priority`), and mode switches register / unregister dynamically and take effect instantly
-- **Plain-language coverage**: 33 tools covered by the rule table (e.g. `pwsh` → "running a command on the computer"); 19 tools without native product cards have been taken over by plugin cards since v1.0.0; since v1.1.0 Simple mode folds the whole tool chain into groups, where every tool row (including `read` / `write` / `web_search` that have official native cards) renders by the same plain-language rules — while in Native mode they stay the product's original cards
+- **Native mode = product as shipped**: in Native mode the plugin registers no tool cards at all and hands rendering back to the product (including generic cards); the collapsed-group node registers only in Plain mode (shadowing the product's tool-call tree with a lower `priority`), and mode switches register / unregister dynamically and take effect instantly
+- **Plain-language coverage**: 33 tools covered by the rule table (e.g. `pwsh` → "running a command on the computer"); 19 tools without native product cards have been taken over by plugin cards since v1.0.0; since v1.1.0 Plain mode folds the whole tool chain into groups, where every tool row (including `read` / `write` / `web_search` that have official native cards) renders by the same plain-language rules — while in Native mode they stay the product's original cards
 
 ## Design principles
 
 - **Presentation only**: changes purely the UI rendering; model input and output are untouched — the agent's work is unaffected
-- **Zero takeover in Native**: no cards are registered in Native mode; the product UI returns completely; in Simple mode tool calls fold into groups whose rows render by the plain-language rules, but the official tool cards themselves are never modified and remain original in Native mode
+- **Zero takeover in Native**: no cards are registered in Native mode; the product UI returns completely; in Plain mode tool calls fold into groups whose rows render by the plain-language rules, but the official tool cards themselves are never modified and remain original in Native mode
 - **In-memory mode**: refreshing returns to Native — simple, clean, no configuration pollution
 - **Theme-following**: only official `--dsw-alias-*` design variables are used; adapts to both light and dark themes
 
@@ -70,20 +70,20 @@ You can also grab the packaged artifact from [Releases](https://github.com/Khali
 ## Usage
 
 1. After startup, click the floating button at the bottom-left (it shows the current mode)
-2. Choose **Simple**: tool calls in a task fold into groups — a one-line summary when collapsed; click to open the panel with a plain-language row per tool and its delivery-document detail
-3. The menu can toggle "Hide complex tools" (Simple mode only)
+2. Choose **Plain**: tool calls in a task fold into groups — a one-line summary when collapsed; click to open the panel with a plain-language row per tool and its delivery-document detail
+3. The menu can toggle "Hide complex tools" (Plain mode only)
 4. Choose **Native**: the full native interface returns
 5. Refresh the page to go back to Native mode
 
 ## FAQ
 
 **Why do I return to Native mode after a refresh?**
-The mode lives in memory. That is deliberate: Simple mode is a temporary aid — when you no longer need it, a refresh makes it disappear without leaving any state behind.
+The mode lives in memory. That is deliberate: Plain mode is a temporary aid — when you no longer need it, a refresh makes it disappear without leaving any state behind.
 
 **Why do some tool cards look unchanged?**
-Tools like `read`, `write`, and `web_search` already have polished official native cards; the plugin registers no replacement cards for them (Native mode is completely original). In Simple mode they are folded into the group alongside other tools and shown as unified plain-language rows — the official cards themselves are never altered.
+Tools like `read`, `write`, and `web_search` already have polished official native cards; the plugin registers no replacement cards for them (Native mode is completely original). In Plain mode they are folded into the group alongside other tools and shown as unified plain-language rows — the official cards themselves are never altered.
 
-**Does Simple mode affect how the agent works?**
+**Does Plain mode affect how the agent works?**
 No. The plugin only changes the display; the model receives and produces exactly the same input and output as in Native mode.
 
 **What do tables / code blocks look like in the detail panel?**
@@ -93,12 +93,20 @@ Result text is redacted first, then rendered as a Markdown subset: `| a | b |` t
 
 - Keep tracking DSH official interface evolution and stay compatible with new releases
 - Expand the tool rule table so more tools automatically get plain-language copy and documented presentation
-- Polish the Simple mode experience: timeline rows, delivery-document rendering, redaction granularity
+- Polish the Plain tier experience: timeline rows, delivery-document rendering, redaction granularity
 - Add adaptation notes and FAQ entries based on community feedback
 
 Ideas or tools that don't fit well? Open an issue and discuss.
 
 ## Changelog
+
+### v1.3.1 (2026-09-17)
+
+- Tier names settled: **Native / Tidy / Plain** (previously Native / Medium / Simple). Each word names one perceptible difference — Native is fidelity, Tidy is arrangement, Plain is language — while "Medium" is a degree word that shares no axis with the other two
+- Fix: after picking the Tidy tier the bottom-left floating button still read "Native" (the tier-name dispatch was missing the third tier; a full audit confirmed this was the only such site)
+- Security (found by red-teaming): the Tidy tier derives summaries by the product rules, but now keeps the redaction floor — sensitive key names (`token` / `secret` / `password` / `api_key` / `authorization` …) are never read; when a payload holds only sensitive keys it no longer falls back to the raw JSON text (which would expose key names and structure); credentials in URL query strings (`?token=` / `&api_key=` / `&sig=` …) are redacted too
+- Dropped the `title` attribute on summaries (the product has none), so hovering a long argument no longer pops the whole JSON
+- Tier semantics unchanged: no functional or data changes
 
 ### v1.3.0 (2026-09-17)
 
