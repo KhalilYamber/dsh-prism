@@ -95,6 +95,12 @@ npx -y @deepseek-ai/dsh plugin --profile web add <本仓库目录>
 
 ## 更新日志
 
+### v1.2.1（2026-09-17）
+
+- 适配 DSH 0.1.5：Chat 视图快照改从运行时注入的 `useChat` 取用（新版把它从 `SessionSnapshot.chat` 挪到了 `SessionStandardProps.useChat`），旧版路径保留为回退，同一份代码在两代产品上都能正常归组
+- 新增诊断开关：控制台执行 `window.__PRISM_DEBUG__ = true` 后刷新，会输出首个组节点的分组上下文（turn / 节点数 / 工具数 / 边界判定），产品升级后定位问题不必再猜
+- 配套回归脚本同步：新增「新版 ChatSnapshot 直取」用例，25 项全通过
+
 ### v1.2.0（2026-08-18）
 
 - 界面双语适配：全部文案跟随 DSH 界面语言（zh/en），切换即时生效；33 工具规则、参数摘要、菜单、组状态均有英文

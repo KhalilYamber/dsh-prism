@@ -95,6 +95,12 @@ Ideas or tools that don't fit well? Open an issue and discuss.
 
 ## Changelog
 
+### v1.2.1 (2026-09-17)
+
+- DSH 0.1.5 compatibility: the Chat view snapshot is now read from the runtime-injected `useChat` (the new release moved it from `SessionSnapshot.chat` to `SessionStandardProps.useChat`); the older path is kept as a fallback, so one build groups correctly on both generations of the product
+- New diagnostic switch: run `window.__PRISM_DEBUG__ = true` in the console and reload to print the grouping context of the first group node (turn / node count / tool count / boundary verdict) — no more guessing when the product moves underneath
+- Regression scripts updated: a new "new-generation ChatSnapshot" case, 25/25 passing
+
 ### v1.2.0 (2026-08-18)
 
 - Bilingual UI: every string follows the DSH interface language (zh/en), switching takes effect instantly; all 33 tool rules, argument summaries, menus, and group status ship in English
