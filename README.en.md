@@ -30,7 +30,7 @@ Native is the default. Switching takes effect immediately; refreshing the page r
 
 ## Features
 
-- **Floating entry, bottom-left**: shows the current tier; click to open the menu and switch between Native / Tidy / Plain; the menu also carries a "Hide complex tools" toggle (Plain tier only)
+- **Sidebar entry**: a round button at the sidebar foot, above Settings (the official `sidebar.footer.action` slot, sharing the row with WSL / memory entries); it shows the current tier initial (N / T / P) and opens the menu to switch between Native / Tidy / Plain, which also carries a "Hide complex tools" toggle (Plain tier only)
 - **Tidy tier = collapsed groups × native rows**:
   - Shares grouping and the collapsed summary line with Plain; only the expanded rows differ: they render through the host's built-in official `@deepseek-ai/dsh-client-ui-primitives` (`DisclosureRow`, `StateDot`, official icon components), with titles and summaries derived by the product's own `toolRowModel` rules — visually the same as a shipped tool row
   - Row anatomy: state marker (running / error / interrupted via `StateDot`) + monochrome icon + category title + "·" + argument summary; generic tools carry the tool name the way the product does (`Tool call · get_goal · {}`)
@@ -65,11 +65,11 @@ The plugin is distributed through GitHub; clone this repository and install it b
 npx -y @deepseek-ai/dsh plugin --profile web add <path-to-this-repo>
 ```
 
-You can also grab the packaged artifact from [Releases](https://github.com/KhalilYamber/dsh-prism/releases). After the Web UI starts, the floating entry appears at the bottom-left.
+You can also grab the packaged artifact from [Releases](https://github.com/KhalilYamber/dsh-prism/releases). After the Web UI starts, the tier entry appears at the sidebar foot, above Settings.
 
 ## Usage
 
-1. After startup, click the floating button at the bottom-left (it shows the current mode)
+1. After startup, click the tier entry at the sidebar foot, above Settings (it shows the current mode)
 2. Choose **Plain**: tool calls in a task fold into groups — a one-line summary when collapsed; click to open the panel with a plain-language row per tool and its delivery-document detail
 3. The menu can toggle "Hide complex tools" (Plain mode only)
 4. Choose **Native**: the full native interface returns
@@ -99,6 +99,12 @@ Result text is redacted first, then rendered as a Markdown subset: `| a | b |` t
 Ideas or tools that don't fit well? Open an issue and discuss.
 
 ## Changelog
+
+### v1.4.0 (2026-09-18)
+
+- **Entry moved**: the tier switcher left the floating layer for the sidebar foot — the official `sidebar.footer.action` slot, sharing the row with WSL / memory entries and sitting above Settings. The button shows the current tier initial (N / T / P), 28px wide-sidebar / 36px rail, matching its neighbours
+- The whole floating-placement logic went with it (including the phone-specific corner fallback): the entry lives in the sidebar, so wide and narrow layouts both just work, with nothing fighting the controls above the composer
+- Regression scripts updated for the new entry selector (26 of them)
 
 ### v1.3.4 (2026-09-18)
 
@@ -165,7 +171,6 @@ Closing review pass (only changes that affect future work):
 - Simple mode: timeline rows (category icon + plain-language action + status icon) + delivery-document detail (Markdown subset rendering: tables / code blocks / headings / commit highlighting)
 - New "Hide complex tools" toggle (on by default): 21 advanced tools fold into one line
 - Stricter data redaction: sensitive argument names never shown, secret shapes replaced, details redacted before rendering
-- Floating entry repositions dynamically, following the sidebar and composer, never covering input
 
 ### Early versions
 
