@@ -100,6 +100,10 @@ Ideas or tools that don't fit well? Open an issue and discuss.
 
 ## Changelog
 
+### v1.3.4 (2026-09-18)
+
+- Phone (narrow-screen) fit: below 560px the floating entry sits at the bottom-left corner instead of competing with the controls above the composer; its touch height grows 31→39px, and the menu and panels stay inside the viewport. Wide-screen behavior is unchanged
+
 ### v1.3.3 (2026-09-17)
 
 - Fix: **collapsing was incomplete**. Tool calls inside one user turn used to be split at the "final reply", so calls sitting between replies (common when the model writes and calls as it goes) each got their own row — reading as "half collapsed, half spilled". A turn's **entire** set of tool calls now folds into a single stats line, with no splitting
