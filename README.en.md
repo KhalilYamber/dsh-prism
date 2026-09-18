@@ -39,7 +39,7 @@ Native is the default. Switching takes effect immediately; refreshing the page r
   - Summary view: every tool call in a user turn, up to the model's final reply, folds into one group; collapsed it shows a single stats line, "N tools · M thoughts" (M counts the model's reasoning blocks from assistant output; when there are no thoughts only the tool count shows), with a group status at the end (✓ done / ● running / ✕ had errors)
   - Detail view: click the stats line to open a documented panel — header ("This call: N tools · M thoughts") + list (one row per tool) + note; in the Plain tier a row is category icon + plain-language action / argument summary + status icon, in the Tidy tier an official icon + category title + argument summary; click a row to open that tool's "delivery document" detail (redacted result rendered as Markdown)
   - Hide complex tools: 21 advanced tools (goals / plans, subagent orchestration, background jobs, plugin system) collapse into plain summary rows by default; click "展开" (expand) to reveal and open the detail; the menu toggle turns the folding off at any time
-  - Grouping rule: all tool calls within one user turn before the final reply (the last assistant message containing text) form one group; a running turn keeps accumulating new calls; replay after refresh regroups by the same rule; every tool appears exactly once
+  - Grouping rule: **all** tool calls within one user turn form one group (a single stats line, never split at a reply); a running turn keeps accumulating new calls; replay after refresh regroups by the same rule; every tool appears exactly once
 - **Bilingual UI**: every string follows the DSH interface language (Simplified Chinese / English); switching language in Settings takes effect instantly without a refresh — tool copy, argument summaries, menus, and group status all ship in both languages\n- **Data redaction** (one shared floor for both collapsed tiers):
   - Sensitive argument names such as `token / secret / password / api_key / authorization` are never read — the Tidy tier filters them too; when a payload holds only sensitive keys the summary stays empty instead of falling back to raw JSON
   - Common secret shapes in result text and summaries (`sk-xxx`, `Bearer xxx`, `?token=xxx`, `key=xxx`) are replaced with placeholders
@@ -99,6 +99,12 @@ Result text is redacted first, then rendered as a Markdown subset: `| a | b |` t
 Ideas or tools that don't fit well? Open an issue and discuss.
 
 ## Changelog
+
+### v1.3.3 (2026-09-17)
+
+- Fix: **collapsing was incomplete**. Tool calls inside one user turn used to be split at the "final reply", so calls sitting between replies (common when the model writes and calls as it goes) each got their own row — reading as "half collapsed, half spilled". A turn's **entire** set of tool calls now folds into a single stats line, with no splitting
+- Related calibration: the thought count now covers the whole turn's reasoning (it previously counted only reasoning before the final reply), matching the tool-count scope
+- Regressions: grouping 26/26 (new "calls after a reply stay in the same group" case), equivalence clean, red-team unit 29/29, red-team browser 20/20
 
 ### v1.3.2 (2026-09-17)
 
