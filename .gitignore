@@ -3,6 +3,11 @@ RELEASE_CHECKLIST.md
 *.bak
 *.tgz
 
+# 本地工程面：验收桩、真机探针、截图、历史备份（5MB 级）
+#   ⚠ 这里的东西可能含**真实会话原文**（探针 dump / 真机截图），绝不能进公开仓库。
+#   需要长期保留的结论请写进 README 或 dev/REPORT-*.md（那两份是要入库的）。
+dev/
+
 # 依赖与日志
 node_modules/
 *.log
