@@ -8,7 +8,7 @@
 
 A three-tier UI plugin for the DeepSeek Harness web interface: toggle between **Native**, **Tidy**, and **Plain** with one click. Tidy keeps the product's own tool-row language, Plain rewrites it as plain speech, and both group tool calls into collapsed summaries. Beginners get plain-speak, power users get the full product — the same interface, read three ways.
 
-The project is under active iteration: tracking DSH interface evolution, expanding tool coverage, and polishing the Plain tier experience. Feedback and trial use are welcome.
+The project is under active iteration: tracking DSH interface evolution, expanding tool and official-block coverage, and polishing the fold experience and long-session stability. Feedback and trial use are welcome.
 
 ## Why this exists
 
@@ -33,7 +33,10 @@ Native is the default. Switching takes effect immediately, and your choice is re
 - **Sidebar entry**: a round button at the sidebar foot, above Settings (the official `sidebar.footer.action` slot, sharing the row with WSL / memory entries); it shows the current tier initial (N / T / P) and opens the menu to switch between Native / Tidy / Plain, which also carries a "Hide complex tools" toggle (Plain tier only)
 - **Tidy tier = collapsed groups × native rows**:
   - Shares grouping and the collapsed summary line with Plain; only the expanded rows differ: they render through the host's built-in official `@deepseek-ai/dsh-client-ui-primitives` (`DisclosureRow`, `StateDot`, official icon components), with titles and summaries derived by the product's own `toolRowModel` rules — visually the same as a shipped tool row
-  - Row anatomy: state marker (running / error / interrupted via `StateDot`) + monochrome icon + category title + "·" + argument summary; generic tools carry the tool name the way the product does (`Tool call · get_goal · {}`)
+  - Row anatomy: state marker (the official `StateDot`) + monochrome icon + category title + "·" + argument summary; generic tools carry the tool name the way the product does (`Tool call · get_goal · {}`)
+  - Two-level state: a tool that truly failed (`isError`) shows red; a command that exited non-zero (a `grep` with no match, a truncated `head` pipe — routine cases) shows amber, captioned "command returned non-zero"
+  - Expanded content follows the tool family into official semantic blocks: the command family renders the official `TerminalBlock` (command header + output + copy button), the read family the official `ReadBlock` (with line numbers); everything else keeps the delivery document (`MarkdownText`). When the official primitive is unavailable it falls back in place — nothing is dropped
+  - The fold toggle uses the official `FoldToggle`; this host version does not ship it yet, so the plugin's own fallback ("expand ▾ / collapse ▾") is used, and the official one engages automatically once the host upgrades
   - Complex tools are not folded (information parity with Native); redaction and detail rendering keep the same floor
 - **Plain mode = collapsed tool groups × delivery documents**:
   - Segmented summary lines: **the tool calls between two pieces of prose fold into one line each**; collapsed it shows "N tools · M thoughts" (M counts that segment's reasoning blocks from assistant output; when there are no thoughts only the tool count shows), with that segment's status at the end (✓ done / ● running / ✕ had errors / ⚠ mixed counts)
@@ -45,12 +48,14 @@ Native is the default. Switching takes effect immediately, and your choice is re
   - Hide complex tools: 21 advanced tools (goals / plans, subagent orchestration, background jobs, plugin system) collapse into plain summary rows by default; click "expand" to reveal and open the detail; the menu toggle turns the folding off at any time
   - Grouping rule: a turn is cut into **spans at every assistant step that carries prose** (the tool calls between two pieces of prose form one span each), each span collapsing into its own line right below that prose; inside a span the nodes are still segmented by step. A step that only reasoned is not a boundary (its thinking text stays inside the panel segment); the answer step is always a boundary and nothing after it folds. A running turn keeps accumulating new calls; replay after refresh regroups by the same rule; every tool appears exactly once
 - **The clicked block is pinned while a disclosure opens**: opening a panel changes the flow height, and the host's scroll owner (`ui-chat`'s `ChatView.tsx`: a `ResizeObserver` on the flow column that snaps the viewport to the new floor while the reader is pinned to the bottom) would otherwise pull the clicked row out from under the pointer. The plugin records the clicked block's on-screen position at click time and holds it, so the clicked row stays still while its content grows downward. The correction writes only the scroll offset, disarms 320ms after the layout settles (1.2s at the latest), and yields at once to any wheel / touch / scroll-key gesture; mid-transcript reading never moved, and the pin adds nothing there
-- **Bilingual UI**: every string follows the DSH interface language (Simplified Chinese / English); switching language in Settings takes effect instantly without a refresh — tool copy, argument summaries, menus, and group status all ship in both languages\n- **Data redaction** (one shared floor for both collapsed tiers):
+- **Bilingual UI**: every string follows the DSH interface language (Simplified Chinese / English); switching language in Settings takes effect instantly without a refresh — tool copy, argument summaries, menus, and group status all ship in both languages
+- **Data redaction** (one shared floor for both collapsed tiers):
   - Sensitive argument names such as `token / secret / password / api_key / authorization` are never read — the Tidy tier filters them too; when a payload holds only sensitive keys the summary stays empty instead of falling back to raw JSON
   - Common secret shapes in result text and summaries (`sk-xxx`, `Bearer xxx`, `?token=xxx`, `key=xxx`) are replaced with placeholders
   - The Plain tier additionally reduces paths to the file name (`file_path` and similar render as basename); the Tidy tier shows paths by the product rules, to stay close to the shipped rows
   - The detail panel shows only the redacted result — raw arguments never surface
 - **Native tier = product as shipped**: in Native mode the plugin registers no tool-row renderer at all and hands rendering back to the product (including generic cards); the collapsed-group nodes register only in Tidy and Plain (taking over `tool-call` / `assistant-step` / `model-retry` with a lower `priority`), and tier switches register / unregister dynamically and take effect instantly
+- **Diagnosability**: one-line health check in the tier menu (version + the three registrations + the three spacing counters); the console keeps the last 6 partition runs and the last 5 turn snapshots under `__PRISM_DIAG__`; suspicious shapes are auto-logged (`__PRISM_DIAG_LOG__()` to read, `__PRISM_DIAG_LOG_CLEAR__()` to clear), so a problem that heals itself still leaves its scene behind
 - **Copy rules**: the 33-tool rule table supplies plain-language copy (e.g. `pwsh` → "running a command on the computer"); tools outside the table get an argument-name-derived summary. In the Plain tier every row inside a group renders by these rules; the Tidy tier uses the product's own category titles and summary rules (`Bash · …`, `Tool call · name · …`) and keeps the plugin filter only on the redaction floor
 
 ## Design principles
@@ -59,6 +64,8 @@ Native is the default. Switching takes effect immediately, and your choice is re
 - **Zero takeover in Native**: no cards are registered in Native mode; the product UI returns completely; in Plain mode tool calls fold into groups whose rows render by the plain-language rules, but the official tool cards themselves are never modified and remain original in Native mode
 - **Tier memory**: the tier you pick is stored in the browser (`dsh.prism.mode`), so a refresh or a DSH restart keeps it; other UI state (group open/close, menu, hide-complex toggle) stays in memory
 - **Theme-following**: only official `--dsw-alias-*` design variables are used; adapts to both light and dark themes
+- **Fail loud**: registration and render errors always `console.error('[prism] …')` and land in the diagnostics surface (`window.__PRISM_DIAG__`) — never swallowed
+- **Never swallow, never invent**: missing data degrades to a plain rendering instead of a guess or a text-parsed reconstruction; folding never makes content disappear
 
 ## Installation
 
@@ -70,7 +77,7 @@ The plugin is distributed through GitHub; clone this repository and install it b
 npx -y @deepseek-ai/dsh plugin --profile web add <path-to-this-repo>
 ```
 
-You can also grab the packaged artifact from [Releases](https://github.com/KhalilYamber/dsh-prism/releases). After the Web UI starts, the tier entry appears at the sidebar foot, above Settings.
+You can also download published artifacts from [Releases](https://github.com/KhalilYamber/dsh-prism/releases). After the Web UI starts, the tier entry appears at the sidebar foot, above Settings.
 
 ## Usage
 
@@ -78,7 +85,7 @@ You can also grab the packaged artifact from [Releases](https://github.com/Khali
 2. Choose **Plain**: tool calls in a task fold into groups — a one-line summary when collapsed; click to open the panel with a plain-language row per tool and its delivery-document detail
 3. The menu can toggle "Hide complex tools" (Plain mode only)
 4. Choose **Native**: the full native interface returns
-5. Refresh the page to go back to Native mode
+5. The tier is remembered: a refresh or a DSH restart keeps the current tier; switch back to Native from the menu at any time
 
 ## FAQ
 
@@ -88,6 +95,9 @@ Yes. Your tier is stored in browser local storage (key `dsh.prism.mode`), so a r
 **Why do some tool cards look unchanged?**
 Tools like `read`, `write`, and `web_search` already have polished official native cards; the plugin registers no replacement cards for them (Native mode is completely original). In Plain mode they are folded into the group alongside other tools and shown as unified plain-language rows — the official cards themselves are never altered.
 
+**Why do some status dots show red and others amber?**
+Red means the tool really failed; amber means the command exited non-zero (a `grep` with no match or a truncated `head` pipe counts — routine stuff), captioned "command returned non-zero". A run of piped commands no longer paints the whole fold red.
+
 **Does Plain mode affect how the agent works?**
 No. The plugin only changes the display; the model receives and produces exactly the same input and output as in Native mode.
 
@@ -96,14 +106,34 @@ Result text is redacted first, then handed to the official `MarkdownText` render
 
 ## Roadmap
 
-- Keep tracking DSH official interface evolution and stay compatible with new releases
-- Expand the tool rule table so more tools automatically get plain-language copy and documented presentation
-- Polish the Plain tier experience: timeline rows, delivery-document rendering, redaction granularity
+- Keep tracking DSH official interface evolution and stay compatible with new releases (once the host ships them, previously missing primitives such as the official `FoldToggle` engage automatically)
+- Expand the tool rule table and official-block coverage: the Search / Web / Diff blocks await structured metadata from the product side
+- Keep polishing rendering stability in long sessions and the fold experience
 - Add adaptation notes and FAQ entries based on community feedback
 
 Ideas or tools that don't fit well? Open an issue and discuss.
 
 ## Changelog
+
+### v1.14.0 (2026-09-24)
+- **The fold cards adopt the official vocabulary** (requested 2026-09-24: "the front end of the fold cards isn't natural enough — can it be polished with the official ui-primitives?"). The investigation found the Tidy tier's *rows* were already the official `DisclosureRow`, while three parts stayed hand-drawn: **the row-end state dot, the fold toggle, and what the expanded row contains**. This release replaces them:
+  - State dot → the official `StateDot` (its running state is the same chasing animation as the one in the `TerminalBlock` header, so rows and cards never disagree)
+  - Fold toggle → the official `FoldToggle` (`button` + `aria-expanded`; the caption moves from a made-up "expand" to the product's "N more rows")
+  - Tool detail → the command family renders through the official `TerminalBlock` (command + output + exit code + one-click copy + its own height fold), the read family through the official `ReadBlock` (a file block with line numbers)
+- **Fall back in place when unavailable**: a missing official primitive, or a tool family not yet wired, keeps the original delivery document (`MarkdownText`) — no content is dropped; unwired families must not impersonate an official block
+- **No duplication, no loss**: the official block carries its own command header / file name, so `command` / `file_path` are pulled from the outer argument area (on the live app the command used to show up twice); the remaining arguments (`cwd` / `timeout` / `offset` …) stay as before
+- **Two-level state** (requested 2026-09-24 after a screenful of red dots): "tool failed" and "command exited non-zero" used to both count as `err`, so a run of `grep` / `head` pipes (non-zero exits) painted every fold row red. Now only `isError` (a real tool failure) is red; a non-zero exit code goes amber (reusing the existing `mixed` state, captioned "command returned non-zero")
+- **Why only two families**: the Search / Web / Diff official blocks consume structured metadata the product's tool plugins put into their results (`path` / `offset` / `lines` / `totalLines` and the like); the plugin layer cannot reach it, and parsing the text instead would invent content that looks right and is wrong (red line: never swallow a block, never invent one)
+- **Verification**: the harness gained 3 assertions (command family either/or, read family either/or, unwired families do not impersonate), **154/154 green**; a differential run against v1.13.0 turns the result-area assertions red. One device gap fixed: `PRISM_REAL_PRIMITIVES=1` does not survive WSL → Windows node.exe, so a `--real-primitives` flag was added
+- **Same-release closing verification**: the two-level state difference is precise: running the pre-grading build turns exactly **1 of 156 assertions red** (its sentinel); the full set is **156/156** (both default and `--real-primitives` modes, measured)
+
+### v1.13.0 (2026-09-24)
+- **Automatic incident logging** (reported 2026-09-23: "in long sessions the Tidy tier occasionally shows the native look", and "switching to Native and back to Tidy, plus a refresh, brings it back"). A fault of this kind heals itself, and catching it by hand is unreliable ("there is no broken page left to find"), so a very light pen now hangs on the render path: **only when a suspicious shape appears and its fingerprint changes** does it write one record to local storage (key `dsh.prism.diag.log`, capped at 20, oldest half dropped on overflow)
+- **Two suspicious criteria**, both meaning "rows that should have folded did not": `span=false` (the node fell into no span → the tool cell draws a standalone native row, which in the Tidy tier looks exactly like Native) and `claimOK=false` (the claim failed → nobody drew that span's fold line). The product folding its own turn (`foldable`) and nodes outside the window (`inWin=false`) are normal shapes and are **not** recorded — logging them would only drown the signal
+- **What is written**: structure only (whether a span formed, whether it was claimed, where, and that turn's DOM counts of tool seats / prism fold lines / collapsed seats); no node keys, no prose; the fingerprint leads with the session, so same-numbered turns from two sessions never swallow each other
+- **How to read it**: `__PRISM_DIAG_LOG__()` in the console returns the JSON, `__PRISM_DIAG_LOG_CLEAR__()` clears it; the `dev/prism-claim-dump.js` probe prints it alongside
+- **Verification**: the harness gained 6 assertions (one record when no span forms / no repeat write for the same shape / nothing recorded for normal shapes / a changed shape within a turn replaces rather than stacks / corrupted storage is wiped on the spot / logging still works after the wipe), **152/152 green**; the **reverse** run against `--client=dev/client-1.12.0-backup.js` (the build without the logger) turns **5 of them red** without breaking the run — the assertions bite. Live check: delivered version 1.13.0, tier and all three registrations healthy, the read control in place, the storage key **absent** while nothing is wrong; plus an end-to-end pass (inject a sample → read it back → clear)
+- **Three issues fixed in the closing review** (all introduced by this release): the fingerprint no longer contains the tool count (it used to write to disk once per arriving tool in a long turn); within one turn and one kind only the newest record is kept (a single turn cannot overflow the 20-slot cap); corrupted or over-quota storage is cleaned once and re-armed (the logger can no longer fail silently forever). One assertion was also fixed: on the old build "comparing empty arrays by length" happened to be equal and then read `undefined`, crashing the whole run — now it turns red as it should, without the crash
 
 ### v1.12.0 (2026-09-22)
 - **Tier memory**: the chosen tier is stored in browser local storage (`dsh.prism.mode`, the same route the host uses for its own UI preferences such as `dsh.conversation.contentWidth`). The read happens before the store is created, so renderers register from the remembered tier at startup. Unreadable, malformed, or blocked storage counts as "never stored" and falls back to Native; a storage failure logs one `console.warn` and never touches the `errors` counter
@@ -312,7 +342,7 @@ ARG_NAME_RULES    argument-name rules: tools without explicit declarations get a
 SENSITIVE_KEY     sensitive argument names (values never shown under any circumstances)
 ```
 
-Registration is dynamic: the `tool-call` renderer for `conversation.chat.node` registers only in the Plain and Tidy tiers (shadowing the product's ToolCallTree with `priority: -1`; a keyed slot throws when the same key registers at the same priority — the lower priority wins), and registers nothing in Native mode, where the product UI renders as shipped. Rows inside the group panel render directly, bypassing the `tool.call.toolview` slot (its only consumer is the product's ToolCallTree, which is shadowed in the collapsed tiers).
+Registration is dynamic: the `tool-call` renderer for `conversation.chat.node` registers only in the Plain and Tidy tiers (shadowing the product's ToolCallTree with `priority: -1`; a keyed slot throws when the same key registers at the same priority — the lower priority wins), and registers nothing in Native mode, where the product UI renders as shipped. Rows inside the group panel render through the plugin directly (plain-language cards / native rows, with expanded details going to the official semantic blocks or the delivery document), bypassing the `tool.call.toolview` slot (its only consumer is the product's ToolCallTree, which is shadowed in the collapsed tiers).
 
 Partition and segmentation: `computeGroups()` first cuts the turn's nodes into spans at every assistant step carrying prose (one span between two pieces of prose; the answer step is a boundary and nothing after it folds; a tool-only step is not a boundary), then hands each span to `computeSegments()`, which cuts it by `step` (a segment is bounded by its last tool or retry node, so every node renders exactly once). The segment head keeps the product's own "Thinking done" wording, and rows inside reuse `ToolCard` / `NativeToolRow` / `RetryRow`. Each collapsed line's rendering right is claimed per session + turn + span id (`useGroupClaim`), and its open state is keyed the same way. Elapsed time comes from the `callTime` and `time` already on the tool block, and a running row advances through the `useTick()` one-second beat, which only starts while running rows exist.
 
@@ -322,7 +352,7 @@ Partition and segmentation: `computeGroups()` first cuts the turn's nodes into s
 | --- | --- |
 | `tools` | Tool names (array); multiple tools can share one rule |
 | `doing` / `done` | Plain-language copy for in-progress / done; generic copy is auto-generated when absent |
-| `complex` | Marks a complex tool: folded to one line in Simple mode by default, click to expand |
+| `complex` | Marks a complex tool: folded to one line in Plain mode by default, click to expand |
 | `noArgs` | Do not show an argument summary (keep the original behavior) |
 | `arg.pick` | Candidate argument keys; the first non-empty string wins, in order |
 | `arg.mode` | Presentation mode: `file`=path shows only the basename / `raw`=verbatim / `short`=truncated (with `max`) / `count`=array count (with `unit`) / `wrap`=wrapped in parentheses / `fixed`=fixed copy |
@@ -331,7 +361,7 @@ Partition and segmentation: `computeGroups()` first cuts the turn's nodes into s
 
 ### Adding a tool
 
-1. Add one line to `TOOL_RULES`. **The tool name alone is enough**: `doing`/`done` get generic plain-language copy automatically, and the argument summary is auto-generated from `ARG_NAME_RULES` by argument name (e.g. `file_path` → "file: xxx", `url` → "link: xxx"); the Simple-mode group panel renders the tool's row by these rules automatically.
+1. Add one line to `TOOL_RULES`. **The tool name alone is enough**: `doing`/`done` get generic plain-language copy automatically, and the argument summary is auto-generated from `ARG_NAME_RULES` by argument name (e.g. `file_path` → "file: xxx", `url` → "link: xxx"); the Plain-mode group panel renders the tool's row by these rules automatically.
 2. For more precision, add `doing` / `done` / `arg`; add `complex: true` to fold it by default.
 3. The group panel renders every tool in the group (including `read` / `write` etc. that have official native cards) as plain-language rows; in Native mode they remain the product's original cards — no special handling needed.
 
