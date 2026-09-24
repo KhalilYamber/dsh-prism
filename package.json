@@ -1,6 +1,6 @@
 {
   "name": "dsh-prism",
-  "version": "1.11.0",
+  "version": "1.14.0",
   "description": "DSH 界面三档模式（原生/整洁/白话）：整洁档走产品原版行语言，白话档走大白话，工具调用按 step 分段归组折叠 / Three-tier UI mode (native/tidy/plain) for DeepSeek Harness: the product's own row language or plain speech, with step-segmented tool groups",
   "type": "module",
   "main": "lib/index.js",

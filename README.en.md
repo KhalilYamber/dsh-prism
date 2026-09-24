@@ -26,7 +26,7 @@ DSH's bare-bones design is deliberate. But people who want a quick start and peo
 | **Tidy** | People who want a tidier flow without changing how they read the product | Same grouping and collapsing; expanded, every row uses the **product's own row language**: monochrome icon + category title (`Bash` / `Read` / `Edit` / `Tool call`) + "·" + argument summary, e.g. `Bash · Run syntax check`, `Tool call · get_goal · {}` — rendered with the host's built-in official `ui-primitives` components |
 | **Native** | Power users who need complete information | Zero plugin takeover — the product renders exactly as shipped, pixel for pixel |
 
-Native is the default. Switching takes effect immediately; refreshing the page returns to Native. Don't want it? Remove the plugin and the UI is back to factory state with nothing left behind.
+Native is the default. Switching takes effect immediately, and your choice is remembered: refreshing the page or restarting DSH keeps the tier you picked. Don't want it? Remove the plugin and the UI is back to factory state with nothing left behind.
 
 ## Features
 
@@ -57,7 +57,7 @@ Native is the default. Switching takes effect immediately; refreshing the page r
 
 - **Presentation only**: changes purely the UI rendering; model input and output are untouched — the agent's work is unaffected
 - **Zero takeover in Native**: no cards are registered in Native mode; the product UI returns completely; in Plain mode tool calls fold into groups whose rows render by the plain-language rules, but the official tool cards themselves are never modified and remain original in Native mode
-- **In-memory mode**: refreshing returns to Native — simple, clean, no configuration pollution
+- **Tier memory**: the tier you pick is stored in the browser (`dsh.prism.mode`), so a refresh or a DSH restart keeps it; other UI state (group open/close, menu, hide-complex toggle) stays in memory
 - **Theme-following**: only official `--dsw-alias-*` design variables are used; adapts to both light and dark themes
 
 ## Installation
@@ -82,8 +82,8 @@ You can also grab the packaged artifact from [Releases](https://github.com/Khali
 
 ## FAQ
 
-**Why do I return to Native mode after a refresh?**
-The mode lives in memory. That is deliberate: Plain mode is a temporary aid — when you no longer need it, a refresh makes it disappear without leaving any state behind.
+**Is my tier remembered? How do I clear it?**
+Yes. Your tier is stored in browser local storage (key `dsh.prism.mode`), so a refresh or a DSH restart keeps it. To go back to "Native, no trace", just switch to Native; to remove the memory as well, run `localStorage.removeItem('dsh.prism.mode')` in the browser console and refresh. A different browser (or cleared browser data) starts from the default Native tier.
 
 **Why do some tool cards look unchanged?**
 Tools like `read`, `write`, and `web_search` already have polished official native cards; the plugin registers no replacement cards for them (Native mode is completely original). In Plain mode they are folded into the group alongside other tools and shown as unified plain-language rows — the official cards themselves are never altered.
@@ -104,6 +104,11 @@ Result text is redacted first, then handed to the official `MarkdownText` render
 Ideas or tools that don't fit well? Open an issue and discuss.
 
 ## Changelog
+
+### v1.12.0 (2026-09-22)
+- **Tier memory**: the chosen tier is stored in browser local storage (`dsh.prism.mode`, the same route the host uses for its own UI preferences such as `dsh.conversation.contentWidth`). The read happens before the store is created, so renderers register from the remembered tier at startup. Unreadable, malformed, or blocked storage counts as "never stored" and falls back to Native; a storage failure logs one `console.warn` and never touches the `errors` counter
+- **Only the tier is remembered**: group open/close, menu, and the hide-complex toggle stay in memory
+- **Verification**: new device `dev/prism-persist-check.mjs` (real React + real Chrome + real reload) **20/20**; reverse verification: dropping the write → 8 red, reading a constant → 5 red. Regression: harness 145/145, seat contract 16/16, data red team 26/26, browser red team 17/17, pin check 13/13, self-check probe 12/12
 
 ### v1.11.0 (2026-09-22)
 - **The clicked row stays put when a disclosure opens** (requested on 2026-09-22: "every time I open a fold card the interface flies off, up or down; the card should stay still and the interface should expand downward"). The cause is in the host, with source evidence: `ui-chat`'s `ChatView.tsx` watches the flow column with a `ResizeObserver` and, while the reader is pinned to the bottom (`FOLLOW_THRESHOLD = 24px`), its callback writes `el.scrollTop = el.scrollHeight`. Opening a panel makes the column taller, so the viewport is yanked to the new floor. Measured on the live page: **160px up** on open while pinned, **151px down** on close. The plugin now records the clicked block's on-screen y at click time and holds it while the column resizes, writing back only the scroll offset — no product state touched, no timer added (it disarms 320ms after the layout settles, 1.2s at the latest) and yields at once to wheel / touch / scroll keys / clicks elsewhere
