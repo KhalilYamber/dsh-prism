@@ -115,6 +115,12 @@ Ideas or tools that don't fit well? Open an issue and discuss.
 
 ## Changelog
 
+### v1.14.1 (2026-09-24)
+- **Fixed: the status lights misfiring across the board** (reported the same day: "the red/green/amber lights for tool success and failure — I see red and amber almost all the time now"). Root cause: the v1.14.0 official-vocabulary change added a second `exitCodeOf` in the result section that shadowed the data-layer one; the newcomer returns `undefined` when no exit code is found, while the check reads `code !== null` — `undefined !== null` is always true, so every unmarked text (i.e. every normally successful tool) was judged "exited non-zero": nearly every row showed ✕ and the segment-level success count stayed at 0 (the `✓ n · ! m` counter branch was unreachable — which is also the answer to the previous release's open question about that branch never firing)
+- **Row-level grading caught up**: a non-zero exit now shows amber ⚠ ("command returned non-zero") at row level too, matching the segment level; only a real tool failure (`isError`) is red — the v1.14.0 intent ("no more rows of red dots") now holds in both places (plain-language cards and the Tidy tier's official `StateDot` warning state)
+- **Anchored to prevent false positives**: exit-code parsing now matches the product's `parseExitStatus` exactly (leading newline + end-of-string anchor) — a `[exit code: N]` string appearing inside a file or a search result no longer counts
+- **Verification**: harness **161/161** (default and `--real-primitives`); the new assertions cover row-level three states, the counter branch being reachable, the end anchor, and failures still going red; the **reverse** run against the buggy build turns exactly 3 sentinels red (row-level measured `[0,0,2]` — the two-red-crosses picture reproduced); the other gates pass 16/16, 26/26, 17/17, 13/13, 20/20; live check PASS with 1.14.1 served and zero errors
+
 ### v1.14.0 (2026-09-24)
 - **The fold cards adopt the official vocabulary** (requested 2026-09-24: "the front end of the fold cards isn't natural enough — can it be polished with the official ui-primitives?"). The investigation found the Tidy tier's *rows* were already the official `DisclosureRow`, while three parts stayed hand-drawn: **the row-end state dot, the fold toggle, and what the expanded row contains**. This release replaces them:
   - State dot → the official `StateDot` (its running state is the same chasing animation as the one in the `TerminalBlock` header, so rows and cards never disagree)
